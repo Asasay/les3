@@ -11,18 +11,11 @@ const colors = {
   magenta: "\x1b[35m",
 };
 
-class Key {
-  hex = crypto
-    .generateKeySync("hmac", { length: 256 })
-    .export()
-    .toString("hex");
-}
-
 class HMAC {
   #hmac;
   #hex;
   constructor(key) {
-    this.#hmac = crypto.createHmac("sha256", key);
+    this.#hmac = crypto.createHmac("sha3-256", key);
   }
 
   update(data) {
@@ -119,8 +112,8 @@ if (input.length % 2 != 1)
 if (hasDupes(input))
   printErrorAndExit("Error: There should be no duplicate entities.");
 
-const key = new Key();
-const hmac = new HMAC(key.hex);
+const key = crypto.randomBytes(32).toString("hex");
+const hmac = new HMAC(key);
 const rules = new Rules(input);
 const help = new HelpMenu(rules.table);
 const computerMove = generateComputerMove(input.length);
@@ -165,5 +158,5 @@ console.log(`Computer move: ${input[computerMove - 1]}!`);
 console.log("You " + rules.outcome(computerMove, playerMove) + colors.reset);
 
 console.log("-".repeat(74));
-console.log(`${colors.magenta}HMAC key: ${colors.reset + key.hex}`);
+console.log(`${colors.magenta}HMAC key: ${colors.reset + key}`);
 console.log("-".repeat(74));
